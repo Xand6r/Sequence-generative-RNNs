@@ -7,6 +7,7 @@
 
 
 ```python
+# Importing every library we are going to need
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,11 +19,13 @@ from sklearn.model_selection import train_test_split
 
 
 ```python
+#set all my parameters
 n_steps=10
 n_inputs=1
 n_neurons=100
 n_outputs=1
 
+#this function helps me track my models closeness to finish, i hate looking at empty screens waiting til god-know-when the model will finish training
 def percent(rec,exp):
     import sys
     sys.stdout.write(str(round((rec/exp)*100,2))+"%")
@@ -32,6 +35,7 @@ def percent(rec,exp):
 
 ```python
 #run a tensorflw graph using an rnn cell
+
 rnn=tf.Graph()
 with rnn.as_default():
     x=tf.placeholder(tf.float32,[None,n_steps,n_inputs])
@@ -39,6 +43,7 @@ with rnn.as_default():
     # cell=tf.contrib.rnn.BasicRNNCell(num_units=n_neurons,activation_fn=tf.nn.relu)
     
 #using an rnn projection wrapper so that we can have only one output per step
+
     cell=tf.contrib.rnn.OutputProjectionWrapper(
         tf.contrib.rnn.BasicRNNCell(num_units=n_neurons,activation=tf.nn.relu),
         output_size=n_outputs
@@ -58,7 +63,7 @@ with rnn.as_default():
 
 
 ```python
-# generate sequential data
+# generate sequential data for testing, this is quite the easy data to generate, but we do so using a sin function
 def function(t):
     import math
     return (t*math.sin(t))/3+2*math.sin(t*5)
@@ -86,6 +91,8 @@ x_train[0:15].shape
 
 
 ```python
+#train our data on the test model, let us see how well it can replicate it
+
 with rnn.as_default():
     n_iterations=10000
     batch_size=5
@@ -113,7 +120,7 @@ with rnn.as_default():
 
 
 ```python
-# restoring my sessions for when my models crash
+# restoring my sessions for when my models crash, and using it to predict
 with rnn.as_default():
     with tf.Session() as sess:
         saver.restore(sess,r"/temp/tf_models/rnet.ckpt")
@@ -155,3 +162,4 @@ plt.scatter(x_data[-10:],predictions,marker="*",color="red")
 
 ![png](output_9_1.png)
 
+#### we can see the model's prediction against our own we can see that they are fairly close, this is how we use rnn to generate a sequence
