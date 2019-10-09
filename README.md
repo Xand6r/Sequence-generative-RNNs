@@ -31,12 +31,14 @@ def percent(rec,exp):
 
 
 ```python
+#run a tensorflw graph using an rnn cell
 rnn=tf.Graph()
 with rnn.as_default():
     x=tf.placeholder(tf.float32,[None,n_steps,n_inputs])
     y=tf.placeholder(tf.float32,[None,n_steps,n_outputs])
     # cell=tf.contrib.rnn.BasicRNNCell(num_units=n_neurons,activation_fn=tf.nn.relu)
-
+    
+#using an rnn projection wrapper so that we can have only one output per step
     cell=tf.contrib.rnn.OutputProjectionWrapper(
         tf.contrib.rnn.BasicRNNCell(num_units=n_neurons,activation=tf.nn.relu),
         output_size=n_outputs
@@ -105,74 +107,13 @@ with rnn.as_default():
 
     iteration:0,mse:37.2623176574707
     iteration:1000,mse:0.19994871318340302
-    17.24%
-
-
-    ---------------------------------------------------------------------------
-
-    KeyboardInterrupt                         Traceback (most recent call last)
-
-    <ipython-input-7-877acca54533> in <module>()
-         10                 percent(pos,n)
-         11                 x_batch,y_batch=x_train[pos:pos+batch_size],y_train[pos:pos+batch_size]
-    ---> 12                 sess.run([training_op],feed_dict={x:x_batch,y:y_batch})
-         13                 pos+=batch_size
-         14             if iteration%1000==0:
-    
-
-    C:\Users\Administrator\Anaconda3\lib\site-packages\tensorflow\python\client\session.py in run(self, fetches, feed_dict, options, run_metadata)
-        898     try:
-        899       result = self._run(None, fetches, feed_dict, options_ptr,
-    --> 900                          run_metadata_ptr)
-        901       if run_metadata:
-        902         proto_data = tf_session.TF_GetBuffer(run_metadata_ptr)
-    
-
-    C:\Users\Administrator\Anaconda3\lib\site-packages\tensorflow\python\client\session.py in _run(self, handle, fetches, feed_dict, options, run_metadata)
-       1133     if final_fetches or final_targets or (handle and feed_dict_tensor):
-       1134       results = self._do_run(handle, final_targets, final_fetches,
-    -> 1135                              feed_dict_tensor, options, run_metadata)
-       1136     else:
-       1137       results = []
-    
-
-    C:\Users\Administrator\Anaconda3\lib\site-packages\tensorflow\python\client\session.py in _do_run(self, handle, target_list, fetch_list, feed_dict, options, run_metadata)
-       1314     if handle is None:
-       1315       return self._do_call(_run_fn, feeds, fetches, targets, options,
-    -> 1316                            run_metadata)
-       1317     else:
-       1318       return self._do_call(_prun_fn, handle, feeds, fetches)
-    
-
-    C:\Users\Administrator\Anaconda3\lib\site-packages\tensorflow\python\client\session.py in _do_call(self, fn, *args)
-       1320   def _do_call(self, fn, *args):
-       1321     try:
-    -> 1322       return fn(*args)
-       1323     except errors.OpError as e:
-       1324       message = compat.as_text(e.message)
-    
-
-    C:\Users\Administrator\Anaconda3\lib\site-packages\tensorflow\python\client\session.py in _run_fn(feed_dict, fetch_list, target_list, options, run_metadata)
-       1305       self._extend_graph()
-       1306       return self._call_tf_sessionrun(
-    -> 1307           options, feed_dict, fetch_list, target_list, run_metadata)
-       1308 
-       1309     def _prun_fn(handle, feed_dict, fetch_list):
-    
-
-    C:\Users\Administrator\Anaconda3\lib\site-packages\tensorflow\python\client\session.py in _call_tf_sessionrun(self, options, feed_dict, fetch_list, target_list, run_metadata)
-       1407       return tf_session.TF_SessionRun_wrapper(
-       1408           self._session, options, feed_dict, fetch_list, target_list,
-    -> 1409           run_metadata)
-       1410     else:
-       1411       with errors.raise_exception_on_not_ok_status() as status:
-    
-
-    KeyboardInterrupt: 
+    iteration:1000,mse:0.0001112121212122
+    100.00%
 
 
 
 ```python
+# restoring my sessions for when my models crash
 with rnn.as_default():
     with tf.Session() as sess:
         saver.restore(sess,r"/temp/tf_models/rnet.ckpt")
@@ -199,6 +140,7 @@ predictions
 
 
 ```python
+#plot my model's predictions along with the original data to measure deviation.
 plt.scatter(x_data[-11:-1],x_test.reshape(-1,10),marker='o',s=60)
 plt.scatter(x_data[-10:],predictions,marker="*",color="red")
 ```
